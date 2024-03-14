@@ -3,6 +3,7 @@ import { GetListOrderDto, OrderDto } from '../dto/order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 import { AppErrorNotFoundException } from 'src/exceptions/app-exception';
+import { UpdateTransactionDto } from '../dto/order-payment.dto';
 
 @Injectable()
 export class OrderService {
@@ -93,5 +94,25 @@ export class OrderService {
         }),
       ]);
     return { trxOrderDetailDelete, trxCreateOrUpdate };
+  }
+  async updateTransaction(
+    id: number,
+    updateTransactionDto: UpdateTransactionDto,
+  ) {
+    return await this.prismaService.order.update({
+      where: { id },
+      data: {
+        transaction_id: updateTransactionDto.transaction_id,
+        status: updateTransactionDto.transaction_status,
+      },
+    });
+  }
+  async updateWebhook(transaction_id: string, status: string) {
+    return await this.prismaService.order.updateMany({
+      where: { transaction_id },
+      data: {
+        status,
+      },
+    });
   }
 }
