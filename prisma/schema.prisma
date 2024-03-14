@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               Int               @id @default(autoincrement())
+  email            String            @unique
+  full_name        String            @db.VarChar(255)
+  password         String            @db.Text()
+  created_at       DateTime          @default(now()) @db.Timestamptz(3)
+  product_response ProductResponse[]
+
+  @@map("users")
+}
+
+model Product {
+  id               Int               @id @default(autoincrement())
+  name             String            @unique
+  description      String?           @db.Text()
+  price            Float             @db.DoublePrecision()
+  is_deleted       Boolean           @default(false) @db.Boolean()
+  type             ProductType
+  relation_id      Int?
+  created_at       DateTime          @default(now()) @db.Timestamptz(3)
+  created_by       Int?
+  product_response ProductResponse[]
+
+  @@map("product")
+}
+
+model Media {
+  id       Int     @id @default(autoincrement())
+  content  String? @db.Text()
+  file_url String?
+
+  @@map("media")
+}
+
+model Textbook {
+  id       Int     @id @default(autoincrement())
+  content  String? @db.Text()
+  file_url String?
+
+  @@map("textbooks")
+}
+
+model ProductResponse {
+  product_id Int       @db.Integer()
+  user_id    Int       @db.Integer()
+  enroll_at  DateTime? @db.Timestamptz(3)
+  is_enroll  Boolean?
+  user       User?     @relation(fields: [user_id], references: [id])
+  product    Product?  @relation(fields: [product_id], references: [id])
+
+  @@id([product_id, user_id])
+  @@map("product_response")
+}
+
+model Quiz {
+  id            Int         @id @default(autoincrement())
+  name          String      @db.VarChar()
+  passing_grade Int?
+  created_at    DateTime    @default(now()) @db.Timestamptz(3)
+  created_by    Int?
+  questions     Questions[]
+
+  @@map("quiz")
+}
+
+model QuizReponse {
+  quiz_id   Int      @db.Integer()
+  user_id   Int      @db.Integer()
+  score     Int?
+  is_passed Boolean?
+
+  @@id([quiz_id, user_id])
+  @@map("quiz_response")
+}
+
+model Questions {
+  id               Int               @id @default(autoincrement())
+  quiz_id          Int
+  title            String            @db.VarChar()
+  correct_answer   String
+  created_at       DateTime          @default(now()) @db.Timestamptz(3)
+  created_by       Int?
+  quiz             Quiz?             @relation(fields: [quiz_id], references: [id])
+  question_answers QuestionAnswers[]
+
+  @@map("questions")
+}
+
+model QuestionAnswers {
+  id          Int       @id @default(autoincrement())
+  question_id Int
+  title       String    @db.VarChar()
+  choice      String
+  created_at  DateTime  @default(now()) @db.Timestamptz(3)
+  created_by  Int?
+  questions   Questions @relation(fields: [question_id], references: [id])
+
+  @@map("questions_answers")
+}
+
+enum ProductType {
+  QUIZ
+  TEXT
+  MEDIA
+}
