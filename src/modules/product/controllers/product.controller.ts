@@ -30,12 +30,6 @@ export class ProductController {
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@Req() req, @Query() getProductListDto: GetProductListDto) {
-    getProductListDto.page_size = getProductListDto.page_size
-      ? getProductListDto.page_size - 1 + 1
-      : 10;
-    getProductListDto.page = getProductListDto.page
-      ? (getProductListDto.page - 1) * getProductListDto.page_size
-      : 1;
     const result = await this.productService.findAll(
       getProductListDto,
       req.user.id,
