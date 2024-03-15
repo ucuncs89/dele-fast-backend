@@ -85,6 +85,7 @@ export class OrderCartService {
   async findCartByUserId(user_id: number) {
     const data = await this.prismaService.order.findFirst({
       where: { created_by: user_id, status: 'CART' },
+      include: { order_detail: true },
     });
     return data;
   }

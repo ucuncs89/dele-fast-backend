@@ -13,10 +13,10 @@ import { JwtAuthGuard } from 'src/modules/auth/jwt-auth.guard';
 import { OrderCartDto } from '../dto/order.dto';
 import { OrderCartService } from '../services/order-cart.service';
 
-@ApiTags('order')
+@ApiTags('order-cart')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-@Controller('order/cart')
+@Controller('order-cart')
 export class OrderCartController {
   constructor(private readonly orderCartService: OrderCartService) {}
   @Post()
@@ -26,10 +26,8 @@ export class OrderCartController {
   }
   @Get()
   async findOne(@Req() req) {
-    console.log(req.user);
-
-    // const data = await this.orderCartService.findCartByUserId(req.user.id);
-    return { user: req.user };
+    const data = await this.orderCartService.findCartByUserId(req.user.id);
+    return { data };
   }
   @Delete(':order_id/:product_id')
   async deleteCart(
@@ -38,8 +36,8 @@ export class OrderCartController {
     @Param('product_id') product_id: number,
   ) {
     const data = await this.orderCartService.deleteCartDetail(
-      order_id,
-      product_id,
+      +order_id,
+      +product_id,
       req.user.id,
     );
     return { data };
