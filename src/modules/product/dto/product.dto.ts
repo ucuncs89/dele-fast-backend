@@ -17,6 +17,9 @@ export class ProductDto {
 
   @ApiProperty({ enum: ProductTypeEnum })
   type: ProductTypeEnum;
+
+  @ApiProperty()
+  relation_id: number;
 }
 export class GetProductListDto {
   @ApiProperty({ required: false })
