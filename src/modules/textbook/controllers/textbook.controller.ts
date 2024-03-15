@@ -11,11 +11,12 @@ import {
 import { TextbookService } from '../services/textbook.service';
 import { CreateTextbookDto } from '../dto/create-textbook.dto';
 import { UpdateTextbookDto } from '../dto/update-textbook.dto';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/modules/auth/jwt-auth.guard';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
+@ApiTags('textbook')
 @Controller('textbook')
 export class TextbookController {
   constructor(private readonly textbookService: TextbookService) {}
