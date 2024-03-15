@@ -68,6 +68,7 @@ async function main() {
   for (let m = 1; m <= 5; m++) {
     const media: Media = {
       id: m,
+      title: faker.music.songName(),
       content: faker.lorem.lines(),
       file_url: faker.internet.url(),
     };
@@ -76,6 +77,7 @@ async function main() {
   for (let t = 1; t <= 5; t++) {
     const textbook: Media = {
       id: t,
+      title: faker.lorem.words(),
       content: faker.lorem.lines(),
       file_url: faker.internet.url(),
     };

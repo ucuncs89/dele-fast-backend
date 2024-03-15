@@ -36,6 +36,7 @@ model Product {
 
 model Media {
   id       Int     @id @default(autoincrement())
+  title    String? @db.VarChar()
   content  String? @db.Text()
   file_url String?
 
@@ -44,6 +45,7 @@ model Media {
 
 model Textbook {
   id       Int     @id @default(autoincrement())
+  title    String? @db.VarChar()
   content  String? @db.Text()
   file_url String?
 
