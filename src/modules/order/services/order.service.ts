@@ -2,8 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { GetListOrderDto, OrderDto } from '../dto/order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
-import { AppErrorNotFoundException } from 'src/exceptions/app-exception';
+import {
+  AppErrorException,
+  AppErrorNotFoundException,
+} from 'src/exceptions/app-exception';
 import { UpdateTransactionDto } from '../dto/order-payment.dto';
+import { ProductResponse } from '@prisma/client';
 
 @Injectable()
 export class OrderService {
@@ -114,5 +118,51 @@ export class OrderService {
         status,
       },
     });
+  }
+  async updateByTransactionId(
+    transaction_id: string,
+    transaction_status: string,
+  ) {
+    const order = await this.prismaService.order.findFirst({
+      where: { transaction_id },
+      include: { order_detail: true },
+    });
+    if (!order) {
+      throw new AppErrorNotFoundException(
+        'Order not found, transactio_id doesnt exists',
+      );
+    }
+    const arrResponse: ProductResponse[] = [];
+    if (order.order_detail.length < 1) {
+      throw new AppErrorException('order detail items not found in order');
+    }
+    for (const detail of order.order_detail) {
+      arrResponse.push({
+        user_id: order.created_by,
+        enroll_at: new Date(),
+        is_enroll: true,
+        product_id: detail.product_id,
+      });
+    }
+    try {
+      let trx2;
+      const trx1 = await this.prismaService.order.updateMany({
+        where: { transaction_id },
+        data: {
+          status: transaction_status,
+        },
+      });
+      if (transaction_status === 'settlement') {
+        trx2 = await this.prismaService.$transaction([
+          this.prismaService.productResponse.createMany({
+            data: arrResponse,
+            skipDuplicates: true,
+          }),
+        ]);
+      }
+      return { trx1, trx2 };
+    } catch (error) {
+      throw new AppErrorException(error);
+    }
   }
 }

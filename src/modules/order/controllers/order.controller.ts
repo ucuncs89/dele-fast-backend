@@ -30,7 +30,8 @@ export class OrderController {
 
   @Post()
   async create(@Req() req, @Body() orderDto: OrderDto) {
-    return this.orderService.create(orderDto, req.user.id);
+    const data = await this.orderService.create(orderDto, req.user.id);
+    return { data };
   }
 
   @Get()
@@ -49,25 +50,6 @@ export class OrderController {
   async findOne(@Param('id') id: string) {
     const data = await this.orderService.findOne(+id);
     return { data };
-  }
-
-  @Get(':id/status-transaction')
-  async findStatusOne(@Param('id') id: string) {
-    const data = await this.orderService.findOne(+id);
-    if (!data.transaction_id) {
-      throw new AppErrorNotFoundException('data transaction not found');
-    }
-    const payment = await this.midtransService.statusTransaction(
-      data.transaction_id,
-    );
-    this.orderService.updateTransaction(+id, {
-      merchant_id: payment.merchant_id,
-      transaction_id: payment.transaction_id,
-      transaction_time: payment.transaction_time,
-      transaction_status: payment.transaction_status,
-      midtrans_order_id: payment.order_id,
-    });
-    return { data, payment };
   }
 
   @Put(':id')
@@ -116,7 +98,24 @@ export class OrderController {
     }
     return { data };
   }
-
+  @Get(':id/status-transaction')
+  async findStatusOne(@Param('id') id: string) {
+    const data = await this.orderService.findOne(+id);
+    if (!data.transaction_id) {
+      throw new AppErrorNotFoundException('data transaction not found');
+    }
+    const payment = await this.midtransService.statusTransaction(
+      data.transaction_id,
+    );
+    this.orderService.updateTransaction(+id, {
+      merchant_id: payment.merchant_id,
+      transaction_id: payment.transaction_id,
+      transaction_time: payment.transaction_time,
+      transaction_status: payment.transaction_status,
+      midtrans_order_id: payment.order_id,
+    });
+    return { data, payment };
+  }
   @Post(':id/cancel-transaction')
   async canceltransaction(@Param('id') id: string) {
     const data = await this.orderService.findOne(+id);

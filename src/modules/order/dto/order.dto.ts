@@ -31,3 +31,16 @@ export class GetListOrderDto {
   @ApiProperty({ required: false })
   page_size: number;
 }
+export class OrderCartDto {
+  @ApiProperty()
+  product_id: number;
+
+  @ApiProperty()
+  quantity: number;
+
+  // name: string;
+  // price: number;
+  // order_id: number;
+  // sub_total: number;
+  // created_by: number;
+}

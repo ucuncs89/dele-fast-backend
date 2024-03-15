@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { OrderService } from '../services/order.service';
 import { MidtransService } from 'src/midtrans/midtrans.service';
 
@@ -11,14 +11,18 @@ export class OrderWebhookController {
     private readonly midtransService: MidtransService,
   ) {}
   @Post()
+  @ApiBody({})
   async webhook(@Body() body: any) {
     const checkPayment = await this.midtransService.statusTransaction(
       body.transaction_id,
     );
+
     if (checkPayment) {
-      this.orderService.updateWebhook(
+      console.log(checkPayment);
+
+      return await this.orderService.updateByTransactionId(
         checkPayment.transaction_id,
-        checkPayment.status,
+        checkPayment.transaction_status,
       );
     }
     return true;
